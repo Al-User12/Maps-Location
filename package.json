@@ -1,0 +1,18 @@
+{
+  "name": "maps-location",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "mysql": "^2.18.1",
+    "socket.io": "^4.6.2",
+    "useragent": "^2.3.0"
+  }
+}

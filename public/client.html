@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Location Tracker</title>
+  </head>
+  <body>
+    <h1>Location Tracker</h1>
+    <p>Latitude: <span id="latitude"></span></p>
+    <p>Longitude: <span id="longitude"></span></p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+      // Connect to the Socket.IO server
+      const socket = io('http://backend-server-url:3000');
+
+      // Get the user's location
+      navigator.geolocation.watchPosition((position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // Update the latitude and longitude on the page
+        document.getElementById('latitude').textContent = latitude;
+        document.getElementById('longitude').textContent = longitude;
+
+        // Send the location update to the server
+        socket.emit('locationUpdate', { latitude, longitude });
+      });
+    </script>
+  </body>
+</html>
